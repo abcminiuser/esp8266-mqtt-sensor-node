@@ -1,0 +1,2 @@
+# Don't save edited config file:
+src/config.py
