@@ -9,20 +9,20 @@ from config import CONFIG
 from sensors import SI7021
 
 
+sta_if = network.WLAN(network.STA_IF)
+sta_if.active(False)
 
 print("Connecting to '{}'...".format(CONFIG['wifi']['ssid']))
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(CONFIG['wifi']['ssid'], CONFIG['wifi']['passphrase'])
-while not wlan.isconnected():
+ap_if = network.WLAN(network.STA_IF)
+ap_if.active(True)
+ap_if.connect(CONFIG['wifi']['ssid'], CONFIG['wifi']['passphrase'])
+while not ap_if.isconnected():
     machine.idle()
 print("Connected to Wifi.")
 
-esp.sleep_type(esp.SLEEP_LIGHT)
-
 device_id = CONFIG['mqtt'].get('device_id')
 if device_id is None:
-    device_id = "esp8266_{}".format(ubinascii.hexlify(wlan.config('mac')).decode())
+    device_id = "esp8266_{}".format(ubinascii.hexlify(ap_if.config('mac')).decode())
 
 print("Connecting to MQTT host, device ID '{}'...".format(device_id))
 mqtt = MQTTClient(device_id, CONFIG['mqtt']['host'], CONFIG['mqtt']['port'])
@@ -42,4 +42,6 @@ while True:
     for topic, value in sensor_samples.items():
         mqtt.publish(topic="{}/{}/{}".format(CONFIG['mqtt']['topic_prefix'], device_id, topic), msg=value)
 
+    esp.sleep_type(esp.SLEEP_LIGHT)
     time.sleep(CONFIG['sensors']['sample_interval'])
+    esp.sleep_type(esp.SLEEP_MODEM)
