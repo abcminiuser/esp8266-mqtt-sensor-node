@@ -17,4 +17,9 @@ CONFIG = {
         # Root MQTT topic path, prefixed before device ID and sensor:
         'topic_prefix': None, # (e.g. 'home/esp8266')
     },
+
+    'sensors': {
+        # Seconds between sampling the configured sensors
+        'sample_interval': 60
+    },
 }

@@ -11,3 +11,4 @@ function put {
 put src/main.py main.py
 put src/config.py config.py
 put src/sensors sensors
+put src/sensors/si7021.py sensors/si7021.py

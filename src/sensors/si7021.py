@@ -20,22 +20,28 @@ class SI7021(object):
         self.cbuffer[1] = 0x00
         self.i2c = i2c_bus
 
-    def write_command(self, command_byte):
+    def _write_command(self, command_byte):
         self.cbuffer[0] = command_byte
         self.i2c.writeto(self.addr, self.cbuffer)
 
-    def readTemp(self):
-        self.write_command(self.CMD_MEASURE_TEMPERATURE)
+    def _readTemp(self):
+        self._write_command(self.CMD_MEASURE_TEMPERATURE)
         time.sleep_ms(25)
         temp = self.i2c.readfrom(self.addr,3)
         temp2 = temp[0] << 8
         temp2 = temp2 | temp[1]
         return (175.72 * temp2 / 65536) - 46.85
 
-    def readRH(self):
-        self.write_command(self.CMD_MEASURE_RELATIVE_HUMIDITY)
+    def _readRH(self):
+        self._write_command(self.CMD_MEASURE_RELATIVE_HUMIDITY)
         time.sleep_ms(25)
         rh = self.i2c.readfrom(self.addr, 3)
         rh2 = rh[0] << 8
         rh2 = rh2 | rh[1]
         return (125 * rh2 / 65536) - 6
+
+    def sample(self):
+        return {
+            "temperature": "{0:.1f}".format(self._readTemp()),
+            "humidity": "{0:.1f}".format(self._readRH()),
+        }
