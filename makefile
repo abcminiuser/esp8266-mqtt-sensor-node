@@ -15,7 +15,7 @@ MICROPYTHON_BIN     = vendor/micropython/esp8266-20171101-v1.9.3.bin
 
 
 ESP_TOOL            = python vendor/esptool/esptool.py
-AMPY_TOOL           = python vendor/ampy/ampy/cli.py
+AMPY_TOOL           = python vendor/adafruit-ampy/ampy/cli.py
 
 
 # Flash application to an ESP8266 over serial already running Micropython
