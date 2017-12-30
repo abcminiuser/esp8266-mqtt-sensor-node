@@ -9,20 +9,20 @@ from config import CONFIG
 from sensors import SI7021
 
 
-sta_if = network.WLAN(network.STA_IF)
-sta_if.active(False)
+ap_if = network.WLAN(network.AP_IF)
+ap_if.active(False)
 
 print("Connecting to '{}'...".format(CONFIG['wifi']['ssid']))
-ap_if = network.WLAN(network.STA_IF)
-ap_if.active(True)
-ap_if.connect(CONFIG['wifi']['ssid'], CONFIG['wifi']['passphrase'])
-while not ap_if.isconnected():
+sta_if = network.WLAN(network.STA_IF)
+sta_if.active(True)
+sta_if.connect(CONFIG['wifi']['ssid'], CONFIG['wifi']['passphrase'])
+while not sta_if.isconnected():
     machine.idle()
 print("Connected to Wifi.")
 
 device_id = CONFIG['mqtt'].get('device_id')
 if device_id is None:
-    device_id = "esp8266_{}".format(ubinascii.hexlify(ap_if.config('mac')).decode())
+    device_id = "esp8266_{}".format(ubinascii.hexlify(sta_if.config('mac')).decode())
 
 print("Connecting to MQTT host, device ID '{}'...".format(device_id))
 mqtt = MQTTClient(device_id, CONFIG['mqtt']['host'], CONFIG['mqtt']['port'])

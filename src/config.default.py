@@ -11,7 +11,7 @@ CONFIG = {
         'port': 1883,
 
         # Used in the MQTT topic, if None an auto-generated value will be used
-        # from the device's MAC address:
+        # from the device's MAC address (`esp8266_abcdef01`):
         'device_id': None, # (e.g. 'kitchen_sensors')
 
         # Root MQTT topic path, prefixed before device ID and sensor:
