@@ -17,8 +17,8 @@ sta_if = network.WLAN(network.STA_IF)
 sta_if.active(True)
 sta_if.connect(CONFIG['wifi']['ssid'], CONFIG['wifi']['passphrase'])
 while not sta_if.isconnected():
-    machine.idle()
-print("Connected to Wifi.")
+    pass
+print("Connected to Wifi, IP address {}.".format(sta_if.ifconfig()[0]))
 
 device_id = CONFIG['mqtt'].get('device_id')
 if device_id is None:
