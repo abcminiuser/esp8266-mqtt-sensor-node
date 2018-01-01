@@ -9,7 +9,8 @@ VPATH              += src/
 
 SRC                 = main.py \
                       config.py \
-                      sensors/si7021.py \
+                      sensors/bmp280.py \
+                      sensors/si7021.py
 
 MICROPYTHON_BIN     = vendor/micropython/esp8266-20171101-v1.9.3.bin
 

@@ -27,7 +27,7 @@ class SI7021(object):
     def _readTemp(self):
         self._write_command(self.CMD_MEASURE_TEMPERATURE)
         time.sleep_ms(25)
-        temp = self.i2c.readfrom(self.addr,3)
+        temp = self.i2c.readfrom(self.addr, 3)
         temp2 = temp[0] << 8
         temp2 = temp2 | temp[1]
         return (175.72 * temp2 / 65536) - 46.85
@@ -42,6 +42,6 @@ class SI7021(object):
 
     def sample(self):
         return {
-            "temperature": "{0:.1f}".format(self._readTemp()),
-            "humidity": "{0:.1f}".format(self._readRH()),
+            "si7021/temperature": "{0:.1f}".format(self._readTemp()),
+            "si7021/humidity": "{0:.1f}".format(self._readRH()),
         }

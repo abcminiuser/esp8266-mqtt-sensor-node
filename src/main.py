@@ -6,6 +6,7 @@ import esp
 from umqtt.robust import MQTTClient
 
 from config import CONFIG
+from sensors import BMP280
 from sensors import SI7021
 
 
@@ -34,13 +35,21 @@ i2c = machine.I2C(sda=machine.Pin(12), scl=machine.Pin(14)) # D5/D6 on silkscree
 found_i2c_devices = i2c.scan()
 print("Found I2C devices at addresses: {}".format(' '.join(hex(x) for x in found_i2c_devices)))
 
-si7021 = SI7021.SI7021(0x40, i2c)
+sensor_devices = [
+    SI7021.SI7021(0x40, i2c),
+    BMP280.BMP280(0x76, i2c)
+]
 
 while True:
-    sensor_samples = si7021.sample()
+    sensor_samples = [s.sample() for s in sensor_devices]
 
-    for topic, value in sensor_samples.items():
-        mqtt.publish(topic="{}/{}/{}".format(CONFIG['mqtt']['topic_prefix'], device_id, topic), msg=value)
+    for sensor_sample in sensor_samples:
+        for topic, value in sensor_sample.items():
+            topic_path  = "{}/{}/{}".format(CONFIG['mqtt']['topic_prefix'], device_id, topic)
+            topic_value = value
+
+            print("{} = {}".format(topic_path, topic_value))
+            mqtt.publish(topic=topic_path, msg=topic_value)
 
     esp.sleep_type(esp.SLEEP_LIGHT)
     time.sleep(CONFIG['sensors']['sample_interval'])
