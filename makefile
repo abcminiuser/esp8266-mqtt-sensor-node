@@ -1,3 +1,10 @@
+#          ESP-8266 Sensor Node
+#      Released into the public domain.
+#
+#   dean [at] fourwalledcubicle [dot] com
+#         www.fourwalledcubicle.com
+#
+
 COM_PORT           ?= COM5
 COM_BAUD           ?= 115200
 

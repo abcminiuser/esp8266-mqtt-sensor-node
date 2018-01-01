@@ -1,3 +1,11 @@
+#          ESP-8266 Sensor Node
+#      Released into the public domain.
+#
+#   dean [at] fourwalledcubicle [dot] com
+#         www.fourwalledcubicle.com
+#
+
+
 CONFIG = {
     'wifi': {
         # Wifi SSID and WPA2 Passphrase:

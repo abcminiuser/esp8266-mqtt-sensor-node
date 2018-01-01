@@ -1,4 +1,12 @@
-# Bosch BMP280 Pressure Sensor Driver
+#          ESP-8266 Sensor Node
+#      Released into the public domain.
+#
+#   dean [at] fourwalledcubicle [dot] com
+#         www.fourwalledcubicle.com
+#
+
+# Bosch BMP280 Pressure Sensor Driver.
+
 
 class BMP280(object):
     REG_STATUS    = 0xF3
@@ -25,18 +33,27 @@ class BMP280(object):
         'P9' : {'addr': 0x9E, 'signed': True },
     }
 
+
     def __init__(self, i2c_addr, i2c_bus):
         self.addr = i2c_addr
         self.i2c = i2c_bus
 
-        self.cal = dict()
+        self.cal = self._load_calibration()
+
+
+    def _load_calibration(self):
+        cal_values = dict()
+
         for reg_name, reg_attr in self.REG_CALIB.items():
             cal_value_raw = self.i2c.readfrom_mem(self.addr, reg_attr['addr'], 2)
-            self.cal[reg_name] = cal_value_raw[0] | (cal_value_raw[1] << 8)
+            cal_values[reg_name] = cal_value_raw[0] | (cal_value_raw[1] << 8)
 
             if reg_attr['signed']:
-                if self.cal[reg_name] > 0x7FFF:
-                    self.cal[reg_name] -= 0x10000
+                if cal_values[reg_name] > 0x7FFF:
+                    cal_values[reg_name] -= 0x10000
+
+        return cal_values
+
 
     def _read_raw(self):
         control = bytearray(1)
@@ -56,6 +73,7 @@ class BMP280(object):
 
         return (raw_temp, raw_pressure)
 
+
     def _read_temperature(self, raw_temp):
         dig_T1 = self.cal['T1']
         dig_T2 = self.cal['T2']
@@ -71,6 +89,7 @@ class BMP280(object):
         T = (t_fine * 5 + 128) >> 8;
 
         return T / 100.0
+
 
     def _read_pressure(self, raw_temp, raw_pressure):
         dig_T1 = self.cal['T1']
@@ -111,6 +130,7 @@ class BMP280(object):
         p = ((p + var1 + var2) >> 8) + (dig_P7 <<4);
 
         return p / 256
+
 
     def sample(self):
         (raw_temp, raw_pressure) = self._read_raw();
