@@ -74,7 +74,7 @@ class BMP280(object):
         return (raw_temp, raw_pressure)
 
 
-    def _read_temperature(self, raw_temp):
+    def _calculate_t_fine(self, raw_temp):
         dig_T1 = self.cal['T1']
         dig_T2 = self.cal['T2']
         dig_T3 = self.cal['T3']
@@ -86,15 +86,18 @@ class BMP280(object):
         var1 = ((((adc_T >> 3) - (dig_T1 << 1))) * dig_T2) >> 11;
         var2 = (((((adc_T >> 4) - dig_T1) * ((adc_T >> 4) - dig_T1)) >> 12) * dig_T3) >> 14;
         t_fine = var1 + var2;
+
+        return t_fine
+
+
+    def _calculate_temperature(self, t_fine):
+        # Conversion code from the BMP280 datasheet:
         T = (t_fine * 5 + 128) >> 8;
 
         return T / 100.0
 
 
-    def _read_pressure(self, raw_temp, raw_pressure):
-        dig_T1 = self.cal['T1']
-        dig_T2 = self.cal['T2']
-        dig_T3 = self.cal['T3']
+    def _calculate_pressure(self, t_fine, raw_pressure):
         dig_P1 = self.cal['P1']
         dig_P2 = self.cal['P2']
         dig_P3 = self.cal['P3']
@@ -106,14 +109,9 @@ class BMP280(object):
         dig_P9 = self.cal['P9']
 
         # Convert 24-bit oversampled value to 20-bit
-        adc_T = raw_temp >> 4
         adc_P = raw_pressure >> 4
 
         # Conversion code from the BMP280 datasheet:
-        var1 = ((((adc_T >> 3) - (dig_T1 << 1))) * dig_T2) >> 11;
-        var2 = (((((adc_T >> 4) - dig_T1) * ((adc_T >> 4) - dig_T1)) >> 12) * dig_T3) >> 14;
-        t_fine = var1 + var2;
-
         var1 = t_fine - 128000;
         var2 = var1 * var1 * dig_P6;
         var2 = var2 + ((var1 * dig_P5) << 17);
@@ -132,10 +130,34 @@ class BMP280(object):
         return p / 256
 
 
-    def sample(self):
+    def read_tempressure(self):
         (raw_temp, raw_pressure) = self._read_raw();
+        t_fine = self._calculate_t_fine(raw_temp)
+
+        return self._calculate_temperature(t_fine)
+
+
+    def read_pressure(self):
+        (raw_temp, raw_pressure) = self._read_raw();
+        t_fine = self._calculate_t_fine(raw_temp)
+
+        return self._calculate_pressure(t_fine, raw_pressure)
+
+
+    def read_temperature_pressure(self):
+        (raw_temp, raw_pressure) = self._read_raw();
+        t_fine = self._calculate_t_fine(raw_temp)
+
+        temperature = self._calculate_temperature(t_fine)
+        pressure = self._calculate_pressure(t_fine, raw_pressure)
+
+        return (temperature, pressure)
+
+
+    def sample(self):
+        (temperature, pressure) = self.read_temperature_pressure()
 
         return {
-            "bmp280/temperature": "{0:.1f}".format(self._read_temperature(raw_temp)),
-            "bmp280/pressure": "{0:.1f}".format(self._read_pressure(raw_temp, raw_pressure)),
+            "bmp280/temperature": "{0:.1f}".format(temperature),
+            "bmp280/pressure": "{0:.1f}".format(pressure),
         }

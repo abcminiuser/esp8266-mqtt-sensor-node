@@ -45,7 +45,7 @@ print("Found I2C devices at addresses: {}".format(' '.join(hex(x) for x in found
 
 sensor_devices = [
     SI7021.SI7021(0x40, i2c),
-    BMP280.BMP280(0x76, i2c)
+    BMP280.BMP280(0x76, i2c),
 ]
 
 while True:
