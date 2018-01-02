@@ -7,8 +7,11 @@
 
 # Bosch BMP280 Pressure Sensor Driver.
 
+import time
+
 
 class BMP280(object):
+    REG_RESET     = 0xE0
     REG_STATUS    = 0xF3
     REG_CONTROL   = 0xF4
     REG_PRES_MSB  = 0xF7
@@ -38,6 +41,7 @@ class BMP280(object):
         self.addr = i2c_addr
         self.i2c = i2c_bus
 
+        self._reset()
         self.cal = self._load_calibration()
 
 
@@ -55,6 +59,12 @@ class BMP280(object):
         return cal_values
 
 
+    def _reset(self):
+        reset = bytearray(1)
+        reset[0] = 0xB6 # Reset magic byte, from datasheet
+        self.i2c.writeto_mem(self.addr, self.REG_RESET, reset)
+
+
     def _read_raw(self):
         control = bytearray(1)
         control[0] = (0b01 << 0) | (0b101 << 2) | (0b010 << 5) # Force single sample, x16 pressure oversample, x2 temperature oversample
@@ -62,8 +72,10 @@ class BMP280(object):
 
         while True:
             status = self.i2c.readfrom_mem(self.addr, self.REG_STATUS, 1)
-            if status[0] & (1 << 3) == 0: # Check if sensor is sampling
+            if status[0] & (1 << 3) == 0: # Check if sensor is still sampling
                 break
+            else:
+                time.sleep_ms(2)
 
         raw_temp_bytes = self.i2c.readfrom_mem(self.addr, self.REG_TEMP_MSB, 3)
         raw_temp = raw_temp_bytes[0] << 16 | raw_temp_bytes[1] << 8 | raw_temp_bytes[2]
