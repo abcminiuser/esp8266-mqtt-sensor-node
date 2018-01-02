@@ -5,7 +5,6 @@
 #         www.fourwalledcubicle.com
 #
 
-
 import network
 import machine
 import ubinascii
