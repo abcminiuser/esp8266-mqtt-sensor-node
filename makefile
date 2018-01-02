@@ -24,6 +24,7 @@ MICROPYTHON_BIN     = vendor/micropython/esp8266-20171101-v1.9.3.bin
 
 ESP_TOOL            = python vendor/esptool/esptool.py
 AMPY_TOOL           = python vendor/adafruit-ampy/ampy/cli.py
+PEP8_TOOL           = python -m autopep8
 
 
 # Flash application to an ESP8266 over serial already running Micropython
@@ -39,7 +40,15 @@ bootstrap:
 
 	@echo "Done, reset board before attempting to flash application."
 
+# Auto-format the source files according to the PEP8 guidelines
+pep8: $(SRC:%=%.pep8) config.default.py.pep8
 
+
+# Pseudo-target to format a Python source file according to PEP8 guidelines
+%.pep8: %
+	@$(PEP8_TOOL) --in-place --max-line-length 100 $<
+
+# Pseudo-target to flash a source file into the ESP8266 via Ampy
 %.ampy: %
 	@echo "Flashing $<..."
 	@if [[ "$(dir $@)" != "./" ]]; then \
@@ -48,4 +57,4 @@ bootstrap:
 	@$(AMPY_TOOL) --port $(COM_PORT) --baud $(COM_BAUD) put $< $(@:%.ampy=%)
 
 
-.PHONY: flash bootstrap
+.PHONY: flash bootstrap pep8

@@ -13,14 +13,16 @@ running the [HomeAssistant](http://home-assistant.io/) home automation software.
 
 ## Dependencies
 
+You will need to have a Python 3.x installed on the host system.
+
 Vendored releases of the [AdaFruit Ampy](https://github.com/adafruit/ampy),
 MicroPython stable binary release and [ESPTool](https://github.com/espressif/esptool)
 are included in this repository, as those are the versions I've tested against.
 These are straight imports rather than submodules, to ensure the project remains
 usable if the upstream projects become unavailable.
 
-Tested on Windows, should work on other platforms too (since the flashing tools
-are all Python based).
+Tested on Windows, however this should work on other platforms too (since the
+flashing tools are all Python based).
 
 ## Hardware
 

@@ -15,7 +15,6 @@ class SI7021(object):
         self.addr = i2c_addr
         self.i2c = i2c_bus
 
-
     def read_temperature(self):
         command = bytearray(1)
         command[0] = 0xF3
@@ -37,7 +36,6 @@ class SI7021(object):
 
         return T
 
-
     def read_relative_humidity(self):
         command = bytearray(1)
         command[0] = 0xF5
@@ -58,7 +56,6 @@ class SI7021(object):
         rH = (125 * humidity_raw) / 65536 - 6
 
         return rH
-
 
     def sample(self):
         return {

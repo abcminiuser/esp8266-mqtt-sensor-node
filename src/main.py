@@ -73,7 +73,7 @@ while True:
 
     for sensor_sample in sensor_samples:
         for topic, value in sensor_sample.items():
-            topic_path  = "{}/{}/{}".format(topic_prefix, device_id, topic)
+            topic_path = "{}/{}/{}".format(topic_prefix, device_id, topic)
             topic_value = value
 
             print("{} = {}".format(topic_path, topic_value))
