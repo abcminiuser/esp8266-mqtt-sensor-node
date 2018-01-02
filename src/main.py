@@ -14,8 +14,6 @@ import esp
 from umqtt.robust import MQTTClient
 
 from config import CONFIG
-from sensors import BMP280
-from sensors import SI7021
 
 
 ap_if = network.WLAN(network.AP_IF)
@@ -38,15 +36,18 @@ mqtt = MQTTClient(device_id, CONFIG['mqtt']['host'], CONFIG['mqtt']['port'])
 mqtt.connect()
 print("Connected to MQTT broker.")
 
-print("Scanning I2C devices...")
-i2c = machine.I2C(sda=machine.Pin(12), scl=machine.Pin(14)) # D5/D6 on silkscreen
-found_i2c_devices = i2c.scan()
-print("Found I2C devices at addresses: {}".format(' '.join(hex(x) for x in found_i2c_devices)))
+sensor_devices = []
 
-sensor_devices = [
-    SI7021.SI7021(0x40, i2c),
-    BMP280.BMP280(0x76, i2c),
-]
+if CONFIG['sensors'].get('i2c'):
+    print("Scanning I2C devices...")
+    pin_sda = CONFIG['sensors']['i2c']['sda']
+    pin_scl = CONFIG['sensors']['i2c']['scl']
+    i2c = machine.I2C(sda=machine.Pin(pin_sda), scl=machine.Pin(pin_scl))
+    found_i2c_devices = i2c.scan()
+    print("Found I2C devices at addresses: {}".format(' '.join(hex(x) for x in found_i2c_devices)))
+
+    for device_class, bus_address in CONFIG['sensors']['i2c']['devices']:
+        sensor_devices.append(device_class(bus_address, i2c))
 
 while True:
     sensor_samples = [s.sample() for s in sensor_devices]

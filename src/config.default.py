@@ -5,6 +5,9 @@
 #         www.fourwalledcubicle.com
 #
 
+from sensors import BMP280
+from sensors import SI7021
+
 
 CONFIG = {
     'wifi': {
@@ -28,6 +31,20 @@ CONFIG = {
 
     'sensors': {
         # Seconds between sampling the configured sensors
-        'sample_interval': 60
+        'sample_interval': 60,
+
+        # I2C connected sensors (None if no I2C sensors used)
+        'i2c': {
+            # Pin connections for the I2C bus:
+            'sda': 12, # (e.g. 12 for GPIO 12)
+            'scl': 14, # (e.g. 14 for GPIO 14)
+
+            # Sensors that are connected to the I2C bus, a list of class and
+            # I2C bus address pairs
+            'devices' : [
+                (SI7021.SI7021, 0x40),
+                (BMP280.BMP280, 0x76),
+            ],
+        },
     },
 }
