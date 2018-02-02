@@ -5,7 +5,7 @@
 #         www.fourwalledcubicle.com
 #
 
-COM_PORT           ?= COM5
+COM_PORT           ?= COM6
 COM_BAUD           ?= 115200
 
 ESPTOOL_FLASH_MODE ?= dio 0
@@ -22,10 +22,17 @@ SRC                 = main.py \
 MICROPYTHON_BIN     = vendor/micropython/esp8266-20171101-v1.9.3.bin
 
 
-ESP_TOOL            = python vendor/esptool/esptool.py
-AMPY_TOOL           = python vendor/adafruit-ampy/ampy/cli.py
+ESP_TOOL            = python -m esptool
+AMPY_TOOL           = python -m ampy.cli
 PEP8_TOOL           = python -m autopep8
+FLAKE8_TOOL         = python -m flake8
 
+
+# Install any prerequisites
+setup:
+	pip install adafruit-ampy
+	pip install esptool
+	pip install flake8
 
 # Flash application to an ESP8266 over serial already running Micropython
 flash: $(SRC:%=%.ampy)
@@ -43,6 +50,10 @@ bootstrap:
 # Auto-format the source files according to the PEP8 guidelines
 pep8: $(SRC:%=%.pep8) config.default.py.pep8
 
+# Run Flake8 analyser on the source code
+flake8:
+	$(FLAKE8_TOOL) src/
+
 
 # Pseudo-target to format a Python source file according to PEP8 guidelines
 %.pep8: %
@@ -57,4 +68,4 @@ pep8: $(SRC:%=%.pep8) config.default.py.pep8
 	@$(AMPY_TOOL) --port $(COM_PORT) --baud $(COM_BAUD) put $< $(@:%.ampy=%)
 
 
-.PHONY: flash bootstrap pep8
+.PHONY: setup flash bootstrap pep8 flake8
