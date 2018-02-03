@@ -33,6 +33,7 @@ FLAKE8_TOOL         = python -m flake8
 setup:
 	pip install adafruit-ampy
 	pip install esptool
+	pip install autopep8
 	pip install flake8
 
 # Flash application to an ESP8266 over serial already running Micropython
