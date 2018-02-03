@@ -72,13 +72,15 @@ while True:
     sensor_samples = [s.sample() for s in sensor_devices]
 
     for sensor_sample in sensor_samples:
+        if sensor_sample is None:
+            continue
+
         for topic, value in sensor_sample.items():
+            if value is None:
+                continue
+
             topic_path = "{}/{}/{}".format(topic_prefix, device_id, topic)
             topic_value = value
 
             print("{} = {}".format(topic_path, topic_value))
             mqtt.publish(topic=topic_path, msg=topic_value)
-
-    esp.sleep_type(esp.SLEEP_LIGHT)
-    time.sleep(sample_interval)
-    esp.sleep_type(esp.SLEEP_MODEM)

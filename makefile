@@ -16,6 +16,7 @@ VPATH              += src/
 
 SRC                 = main.py \
                       config.py \
+                      sensors/apds9960.py \
                       sensors/bmp280.py \
                       sensors/si7021.py
 
