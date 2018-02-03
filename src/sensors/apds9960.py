@@ -11,6 +11,8 @@ import time
 
 
 class APDS9960(object):
+    DEFAULT_I2C_ADDR = 0x39
+
     REG_ENABLE = 0x80
     REG_CONFIG1 = 0x8F
     REG_CONFIG2 = 0x90
@@ -122,8 +124,6 @@ class APDS9960(object):
         gesture = self.read_gesture()
         if gesture is None:
             return None
-
-        print(gesture)
 
         return {
             "apds9960/gesture": "{0}".format(gesture),

@@ -11,6 +11,9 @@ import time
 
 
 class BMP280(object):
+    DEFAULT_I2C_ADDRESS = 0x76
+    ALT_I2C_ADDRESS = 0x77
+
     REG_RESET = 0xE0
     REG_STATUS = 0xF3
     REG_CONTROL = 0xF4
