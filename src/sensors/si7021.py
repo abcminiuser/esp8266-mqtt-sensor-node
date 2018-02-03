@@ -11,6 +11,8 @@ import time
 
 
 class SI7021(object):
+    DEFAULT_I2C_ADDRESS = 0x40
+
     def __init__(self, i2c_addr, i2c_bus):
         self.addr = i2c_addr
         self.i2c = i2c_bus
