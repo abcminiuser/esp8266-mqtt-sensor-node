@@ -5,7 +5,7 @@
 #         www.fourwalledcubicle.com
 #
 
-COM_PORT           ?= COM6
+COM_PORT           ?= COM4
 COM_BAUD           ?= 115200
 
 ESPTOOL_FLASH_MODE ?= dio 0
@@ -19,7 +19,7 @@ SRC                 = main.py \
                       sensors/bmp280.py \
                       sensors/si7021.py
 
-MICROPYTHON_BIN     = vendor/micropython/esp8266-20180511-v1.9.4.bin
+MICROPYTHON_BIN     = vendor/micropython/esp8266-20190529-v1.11.bin
 
 
 ESP_TOOL            = python -m esptool
