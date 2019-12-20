@@ -10,7 +10,6 @@ import machine
 import ubinascii
 import time
 import esp
-from umqtt.robust import MQTTClient
 
 from config import CONFIG
 
@@ -30,6 +29,17 @@ sta_if.connect(ssid, passphrase)
 while not sta_if.isconnected():
     pass
 print("Connected to Wifi, IP address {}.".format(sta_if.ifconfig()[0]))
+
+
+# MQTT Init:
+try:
+    from umqtt.robust import MQTTClient
+except ImportError:
+    import upip
+    upip.install('micropython-umqtt.robust')
+    upip.install('micropython-umqtt.simple')
+
+    from umqtt.robust import MQTTClient
 
 
 # MQTT Broker Connection:

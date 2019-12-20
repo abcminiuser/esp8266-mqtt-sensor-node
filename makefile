@@ -19,7 +19,7 @@ SRC                 = main.py \
                       sensors/bmp280.py \
                       sensors/si7021.py
 
-MICROPYTHON_BIN     = vendor/micropython/esp8266-20190529-v1.11.bin
+MICROPYTHON_BIN     = vendor/micropython/esp8266-20191220-v1.12.bin
 
 
 ESP_TOOL            = python -m esptool
