@@ -30,9 +30,7 @@ FLAKE8_TOOL         = python -m flake8
 
 # Install any prerequisites
 setup:
-	pip install adafruit-ampy
-	pip install esptool
-	pip install flake8
+	pip install -r requirements.txt
 
 # Flash application to an ESP8266 over serial already running Micropython
 flash: $(SRC:%=%.ampy)

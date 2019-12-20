@@ -1,2 +1,4 @@
 adafruit-ampy>=1.0.7
-esptool>=2.6
+esptool>=2.8
+flake8>=3.7.9
+autopep8>=1.4.4
