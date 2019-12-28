@@ -26,7 +26,7 @@ class SampleController:
                     sensor_device.sample()
 
                     self.devices.append(sensor_device)
-                except IOError:
+                except OSError:
                     print("WARNING: {} failed to initialize at address {}!".format(
                         device_class.__name__, hex(bus_address)))
 
