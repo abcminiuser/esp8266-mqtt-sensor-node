@@ -16,6 +16,9 @@ VPATH              += src/
 
 SRC                 = main.py \
                       config.py \
+                      core/wifi.py \
+                      core/mqtt.py \
+                      core/sample.py \
                       sensors/bmp280.py \
                       sensors/si7021.py
 

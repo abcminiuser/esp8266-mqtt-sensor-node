@@ -5,83 +5,60 @@
 #         www.fourwalledcubicle.com
 #
 
-import network
-import machine
-import ubinascii
-import time
-import esp
+from core.wifi import WIFIController
+from core.mqtt import MQTTController
+from core.sample import SampleController
 
 from config import CONFIG
 
-
-# WiFi Setup:
-ssid = CONFIG['wifi']['ssid']
-passphrase = CONFIG['wifi']['passphrase']
-
-print("Connecting to '{}'...".format(ssid))
-ap_if = network.WLAN(network.AP_IF)
-sta_if = network.WLAN(network.STA_IF)
-
-ap_if.active(False)
-sta_if.active(True)
-
-sta_if.connect(ssid, passphrase)
-while not sta_if.isconnected():
-    pass
-print("Connected to Wifi, IP address {}.".format(sta_if.ifconfig()[0]))
+import time
 
 
-# MQTT Init:
-try:
-    from umqtt.robust import MQTTClient
-except ImportError:
-    import upip
-    upip.install('micropython-umqtt.robust')
-    upip.install('micropython-umqtt.simple')
+def create_wifi_controller(wifi_config):
+    ssid = wifi_config['ssid']
+    passphrase = wifi_config['passphrase']
 
-    from umqtt.robust import MQTTClient
+    return WIFIController(ssid, passphrase)
 
 
-# MQTT Broker Connection:
-mqtt_host = CONFIG['mqtt']['host']
-mqtt_port = CONFIG['mqtt']['port']
-device_id = CONFIG['mqtt']['device_id']
+def create_mqtt_controller(mqtt_config, device_mac):
+    mqtt_host = mqtt_config['host']
+    mqtt_port = mqtt_config['port']
+    device_id = mqtt_config['device_id'] or "esp8266_{}".format(device_mac)
+    topic_prefix = mqtt_config['topic_prefix']
 
-if device_id is None:
-    device_id = "esp8266_{}".format(ubinascii.hexlify(sta_if.config('mac')).decode())
-
-print("Connecting to MQTT host, device ID '{}'...".format(device_id))
-mqtt = MQTTClient(device_id, mqtt_host, mqtt_port)
-mqtt.connect()
-print("Connected to MQTT broker.")
+    return MQTTController(device_id, mqtt_host, mqtt_port, topic_prefix)
 
 
-# Sensor Setup:
-sensor_devices = []
+def create_sample_controller(sensor_config):
+    sample_interval = sensor_config['sample_interval']
+    i2c_config = sensor_config.get('i2c')
 
-if CONFIG['sensors'].get('i2c'):
-    pin_sda = CONFIG['sensors']['i2c']['sda']
-    pin_scl = CONFIG['sensors']['i2c']['scl']
-    i2c_devices = CONFIG['sensors']['i2c']['devices']
-
-    i2c_bus = machine.I2C(sda=machine.Pin(pin_sda), scl=machine.Pin(pin_scl))
-
-    print("Scanning I2C devices...")
-    found_i2c_devices = i2c_bus.scan()
-    print("Found I2C devices at addresses: {}".format(' '.join(hex(x) for x in found_i2c_devices)))
-
-    for device_class, bus_address in i2c_devices:
-        sensor_devices.append(device_class(bus_address, i2c_bus))
+    return SampleController(sample_interval, i2c_config)
 
 
-# Periodic Sensor Sampling:
-topic_prefix = CONFIG['mqtt']['topic_prefix']
-sample_interval = CONFIG['sensors']['sample_interval']
+wifi_controller = create_wifi_controller(CONFIG['wifi'])
+mqtt_controller = create_mqtt_controller(CONFIG['mqtt'], wifi_controller.mac_address)
+sample_controller = create_sample_controller(CONFIG['sensors'])
+
+found_i2c_devices = sample_controller.scan_i2c()
+print("Found {} I2C devices at addresses: {}".format(
+    len(found_i2c_devices), ' '.join(hex(x) for x in found_i2c_devices)))
 
 while True:
-    sensor_samples = [s.sample() for s in sensor_devices]
+    if not wifi_controller.connected:
+        print("(Re-)connecting to '{}'...".format(wifi_controller.ssid))
+        wifi_controller.connect()
+        while not wifi_controller.connected:
+            pass
+        print("Connected to Wifi, IP address {}.".format(wifi_controller.current_ip))
 
-    for sensor_sample in sensor_samples:
+        print("Connecting to MQTT server, host {}:{}...".format(
+            mqtt_controller.host, mqtt_controller.port))
+        mqtt_controller.connect()
+        print("Connected to MQTT broker, device ID {}.".format(mqtt_controller.device_id))
+
+    for sensor_sample in sample_controller.sample():
         if sensor_sample is None:
             continue
 
@@ -89,12 +66,7 @@ while True:
             if value is None:
                 continue
 
-            topic_path = "{}/{}/{}".format(topic_prefix, device_id, topic)
-            topic_value = value
+            sent_topic, sent_value = mqtt_controller.publish(topic, value)
+            print("{} = {}".format(sent_topic, sent_value))
 
-            print("{} = {}".format(topic_path, topic_value))
-            mqtt.publish(topic=topic_path, msg=topic_value)
-
-    esp.sleep_type(esp.SLEEP_LIGHT)
-    time.sleep(sample_interval)
-    esp.sleep_type(esp.SLEEP_MODEM)
+    time.sleep(sample_controller.interval)
