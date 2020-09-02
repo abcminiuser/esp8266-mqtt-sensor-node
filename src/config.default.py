@@ -5,8 +5,8 @@
 #         www.fourwalledcubicle.com
 #
 
-from sensors import BMP280
-from sensors import SI7021
+from sensors import bmp280
+from sensors import si7021
 
 
 CONFIG = {
@@ -42,8 +42,8 @@ CONFIG = {
             # Sensors that are connected to the I2C bus, a list of class and
             # I2C bus address pairs
             'devices': [
-                (SI7021.SI7021, 0x40),
-                (BMP280.BMP280, 0x76),
+                (si7021.SI7021, 0x40),
+                (bmp280.BMP280, 0x76),
             ],
         },
     },
