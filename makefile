@@ -22,7 +22,7 @@ SRC                 = main.py \
                       sensors/bmp280.py \
                       sensors/si7021.py
 
-MICROPYTHON_BIN     = vendor/micropython/esp8266-20200902-v1.13.bin
+MICROPYTHON_BIN     = vendor/micropython/esp8266-20220618-v1.19.1.bin
 
 
 ESP_TOOL            = python -m esptool
@@ -33,7 +33,7 @@ FLAKE8_TOOL         = python -m flake8
 
 # Install any prerequisites
 setup:
-	pip install -r requirements.txt
+	pip install --upgrade -r requirements.txt
 
 # Flash application to an ESP8266 over serial already running Micropython
 flash: $(SRC:%=%.ampy)
